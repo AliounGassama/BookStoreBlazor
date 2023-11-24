@@ -1,0 +1,41 @@
+﻿@page "/PointOfSale/{CustomerId:int?}"
+
+@inject HttpClient http
+
+<h3>PointOfSale</h3>
+
+@if (Customer is null || Books is null)
+{
+    <p>Retrieving info...</p>
+}
+else
+{
+    
+    <CustomerCard Customer="@Customer" BackgroundColor="MidnightBlue" TextColor="White"/>
+    <div class="container-fluid">
+        @foreach (var book in Books)
+        {
+            string BookUrl = $"/BookDetails/{book.BookId}/{Customer.CustomerId}";
+            string WriteReviewUrl = $"/WriteReview/{book.BookId}/{Customer.CustomerId}";
+            <BookCard Book="book" Width="50%" BackgroundColor="Beige" BookUrl=@BookUrl WriteReviewUrl=@WriteReviewUrl />
+        }
+    </div>
+    
+}
+
+@code {
+    [Parameter]
+    public int? CustomerId { get; set; }
+
+    public CustomerViewModel? Customer { get; set; }
+
+    public List<BookViewModel>? Books { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Customer = await http.GetFromJsonAsync<CustomerViewModel>($"api/customers/{CustomerId}");
+        Books = await http.GetFromJsonAsync<List<BookViewModel>>($"api/books");
+
+        await base.OnInitializedAsync();
+    }
+}

@@ -1,0 +1,69 @@
+﻿@page "/Books"
+
+@inject HttpClient http
+
+<h3>Products</h3>
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Title
+            </th>
+            <th>
+                Author
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+            <th style="width:100%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var books in BooksList)
+        {
+            <tr>
+                <td>
+                    @books.BookId
+                </td>
+                <td style="white-space:nowrap">
+                    @books.Title
+                </td>
+                <td style="white-space:nowrap">
+                    @books.Author
+                </td>
+                <td style="text-align:end">
+                    @($"{books.BookPrice:$###0.00}")
+                </td>
+                <td>
+                    <a href="@($"BookDetails/{books.BookId}")">Details</a>
+                </td>
+                <td style="width:100%"></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    public List<BookViewModel> BooksList { set; get; } = new List<BookViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            BooksList = await http.GetFromJsonAsync<List<BookViewModel>>("api/books");
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
+        await base.OnInitializedAsync();
+    }
+}

@@ -1,0 +1,92 @@
+﻿@page "/BookDetails/{BookId:int?}"
+@page "/BookDetails/{BookId:int?}/{CustomerId:int?}"
+
+@inject HttpClient http
+
+@if (Book is null)
+{
+    <p>Retrieving Book...</p>
+}
+else
+{
+    <div class="m-2">
+        <div>
+            <h4>Product Details</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-2">
+                    Book ID
+                </dt>
+                <dd class="col-sm-10">
+                    @Book.BookId
+                </dd>
+                <dt class="col-sm-2">
+                    Title
+                </dt>
+                <dd class="col-sm-10">
+                    @Book.Title
+                </dd>
+                <dt class="col-sm-2">
+                    Description
+                </dt>
+                <dd class="col-sm-10">
+                    @Book.Description
+                </dd>
+                <dt class="col-sm-2">
+                    Author
+                </dt>
+                <dd class="col-sm-10">
+                    @Book.Author
+                </dd>
+                <dt class="col-sm-2">
+                    Genres
+                </dt>
+                <dd class="col-sm-10">
+                    @Book.Genres
+                </dd>
+                <dt class="col-sm-2">
+                    Price
+                </dt>
+                <dd class="col-sm-10">
+                    @($"{Book.BookPrice:$###0.00}")
+                </dd>
+            </dl>
+        </div>
+        <div>
+            @if(Customer is null)
+            {
+                <a href="Books">Back to List</a>
+            }
+            else
+            {
+                <a class="btn btn-primary" href="/PointOfSale/@CustomerId">Back</a>
+            }
+
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int? BookId { get; set; }
+
+    public BookViewModel? Book { get; set; }
+
+    [Parameter]
+    public int? CustomerId { get; set; }
+
+    public CustomerViewModel? Customer { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Book = await http.GetFromJsonAsync<BookViewModel>($"api/books/{BookId}");
+
+        if(CustomerId is not null)
+        {
+            Customer = await http.GetFromJsonAsync<CustomerViewModel>($"api/customers/{CustomerId}");
+        }
+
+        await base.OnInitializedAsync();
+    }
+}

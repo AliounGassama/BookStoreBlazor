@@ -1,0 +1,58 @@
+﻿@page "/WriteReview/{BookId:int?}/{CustomerId:int?}"
+
+@inject HttpClient http
+
+<h3>Write Review</h3>
+<hr />
+
+<div class="container">
+    <div class="row">
+        <EditForm Model="@Review" OnSubmit="@HandleSubmit">
+            <div class="form-floating my-2">
+                <InputText id="Title" Name="Title" @bind-Value="Review.ReviewTitle" class="form-control" placeholder="x"></InputText>
+                <label for="Title">Title:</label>
+            </div>
+            <div class="form-floating my-2">
+                <InputTextArea id="Description" Name="Description" @bind-Value="Review.ReviewDescription" class="form-control" placeholder="x"></InputTextArea>
+                <label for="Description">Description:</label>
+            </div>
+            <div class="form-floating my-2">
+                <InputNumber id="Rating" Name="Rating" @bind-Value="Review.ReviewRating" class="form-control" placeholder="x"></InputNumber>
+                <label for="Rating">Rating:</label>
+            </div>
+            <div class="form-group my-2">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </EditForm>
+    </div>
+    <div class="my-1">
+        <a href="Customers">Back to Customer List</a>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    public CustomerViewModel Customer { get; set; }
+
+    [Parameter]
+    public int BookId { get; set; }
+
+    public BookViewModel Book { get; set; }
+
+    public ReviewViewModel Review { get; set; } = new ReviewViewModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Book = await http.GetFromJsonAsync<BookViewModel>($"api/books/{BookId}");
+        Customer = await http.GetFromJsonAsync<CustomerViewModel>($"api/customers/{CustomerId}");
+
+        await base.OnInitializedAsync();
+    }
+
+    protected async void HandleSubmit()
+    {
+        var result = await http.PostAsJsonAsync<ReviewViewModel>("api/review", Review);
+    }
+}

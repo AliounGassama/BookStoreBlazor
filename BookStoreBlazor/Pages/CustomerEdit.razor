@@ -1,0 +1,70 @@
+﻿@page "/CustomerEdit/{CustomerId:int?}"
+
+@inject HttpClient http
+
+<h3>Customer Edit</h3>
+<hr/>
+
+@if (Customer is null)
+{
+    <p>Retrieving Customer...</p>
+}
+else
+{
+     <div class="container">
+         <div class="row">
+            <EditForm Model="@Customer" OnSubmit="@HandleSubmit">
+                 <div class="form-floating my-2">
+                     <InputText id="FirstName" Name="FirstName" @bind-Value="Customer.FirstName" class="form-control" placeholder="x"></InputText>
+                     <label for="FirstName">First Name:</label>
+                 </div>
+                 <div class="form-floating my-2">
+                     <InputText id="LastName" Name="LastName" @bind-Value="Customer.LastName" class="form-control" placeholder="x"></InputText>
+                     <label for="LastName">Last Name:</label>
+                 </div>
+                 <div class="form-floating my-2">
+                     <InputText id="Address" Name="Address" @bind-Value="Customer.Address" class="form-control" placeholder="x"></InputText>
+                     <label for="Address">Address:</label>
+                 </div>
+                 <div class="form-floating my-2">
+                     <InputText id="City" Name="City" @bind-Value="Customer.City" class="form-control" placeholder="x"></InputText>
+                     <label for="City">City:</label>
+                 </div>
+                 <div class="form-floating my-2">
+                     <InputText id="State" Name="State" @bind-Value="Customer.State" class="form-control" placeholder="x"></InputText>
+                     <label for="State">State:</label>
+                 </div>
+                 <div class="form-floating my-2">
+                     <InputText id="PostalCode" Name="PostalCode" @bind-Value="Customer.PostalCode" class="form-control" placeholder="x"></InputText>
+                     <label for="PostalCode">Zip Code:</label>
+                 </div>
+                 <div class="form-group my-2">
+                     <button type="submit" class="btn btn-primary">Submit</button>
+                 </div>
+             </EditForm>
+         </div>
+         <div class="my-1">
+             <a href="Customers">Back to Customer List</a>
+         </div>
+     </div>
+}
+
+
+@code {
+    [Parameter]
+    public int? CustomerId { get; set; }
+
+    public CustomerViewModel Customer { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Customer = await http.GetFromJsonAsync<CustomerViewModel>($"api/customers/{CustomerId}");
+
+        await base.OnInitializedAsync();
+    }
+
+    protected async void HandleSubmit()
+    {
+        var result = await http.PutAsJsonAsync<CustomerViewModel>($"api/customers/{CustomerId}", Customer);
+    }
+}

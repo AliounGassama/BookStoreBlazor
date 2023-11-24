@@ -1,0 +1,20 @@
+﻿<div class="card m-2" style="background-color:@(BackgroundColor ?? "White"); color:@(TextColor ?? "Black")">
+    <div class="card-body">
+        <h5 class="card-title">
+            @Customer.FullName
+        </h5>
+        <div class="card-text">
+            @Customer.Address
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public CustomerViewModel Customer { get; set; }
+
+    [Parameter]
+    public string BackgroundColor { get; set; }
+
+    [Parameter]
+    public string TextColor { get; set; }
+}

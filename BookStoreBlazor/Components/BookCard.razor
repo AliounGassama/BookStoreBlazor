@@ -1,0 +1,45 @@
+﻿@inject NavigationManager Navagate
+
+<a href="@BookUrl">
+    <div class="card m-1"
+         style="background-color:@(BackgroundColor ?? "White"); color:@(TextColor ?? "Black"); display:inline-block; width:calc(@(Width ?? "200px") - 8px);">
+        <div class="card-body">
+            <h5 class="card-title">
+                @Book.Title
+            </h5>
+            <div class="card-text">
+                Price: @Book.BookPrice.ToString("$##0.00")
+            </div>
+            <div class="card-text">
+                <a href="#" class="ml-1">View Review</a>
+                <a href="@WriteReviewUrl" class="mx-1">Write Review</a>
+                <a href="#" class="mx-1">Add To Cart</a>
+            </div>
+        </div>
+    </div>
+</a>
+
+
+
+@code {
+    [Parameter]
+    public BookViewModel Book { get; set; }
+
+    [Parameter]
+    public CustomerViewModel Customer { get; set; }
+
+    [Parameter]
+    public string BackgroundColor { get; set; }
+
+    [Parameter]
+    public string TextColor { get; set; }
+
+    [Parameter]
+    public string Width { get; set; }
+
+    [Parameter]
+    public string BookUrl { get; set; }
+
+    [Parameter]
+    public string WriteReviewUrl { get; set; }
+}
