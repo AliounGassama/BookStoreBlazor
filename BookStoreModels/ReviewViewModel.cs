@@ -10,19 +10,19 @@ namespace BookStoreModels
 {
     public class ReviewViewModel
     {
-        public int ReviewId { get; set; }
-
+        [Required]
         [MaxLength(100)]
         public string? ReviewTitle { get; set; }
 
+        [Required]
         public string? ReviewDescription { get; set; }
 
+        [Required]
+        [Range(1,5)]
         public int ReviewRating { get; set; }
 
         public int BookId { get; set; }
 
         public int CustomerId { get; set; }
-
-        public Customer? Customer { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/WriteReview/{BookId:int?}/{CustomerId:int?}"
 
 @inject HttpClient http
+@inject NavigationManager NavigationManager
 
 <h3>Write Review</h3>
 <hr />
@@ -8,17 +9,22 @@
 <div class="container">
     <div class="row">
         <EditForm Model="@Review" OnSubmit="@HandleSubmit">
+            <DataAnnotationsValidator />
+
             <div class="form-floating my-2">
                 <InputText id="Title" Name="Title" @bind-Value="Review.ReviewTitle" class="form-control" placeholder="x"></InputText>
                 <label for="Title">Title:</label>
+                <ValidationMessage For="@(() => Review.ReviewTitle)" />
             </div>
             <div class="form-floating my-2">
                 <InputTextArea id="Description" Name="Description" @bind-Value="Review.ReviewDescription" class="form-control" placeholder="x"></InputTextArea>
                 <label for="Description">Description:</label>
+                <ValidationMessage For="@(() => Review.ReviewDescription)" />
             </div>
             <div class="form-floating my-2">
-                <InputNumber id="Rating" Name="Rating" @bind-Value="Review.ReviewRating" class="form-control" placeholder="x"></InputNumber>
+                <InputNumber id="Rating" Name="Rating" @bind-Value="Review.ReviewRating" class="form-control" placeholder="x" step="1"></InputNumber>
                 <label for="Rating">Rating:</label>
+                <ValidationMessage For="@(() => Review.ReviewRating)" />
             </div>
             <div class="form-group my-2">
                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -29,6 +35,13 @@
         <a href="Customers">Back to Customer List</a>
     </div>
 </div>
+
+@if (!string.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">
+        @Error
+    </div>
+}
 
 @code {
     [Parameter]
@@ -43,16 +56,45 @@
 
     public ReviewViewModel Review { get; set; } = new ReviewViewModel();
 
+    public string Error { get; set; }
+
+    private EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Review);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         Book = await http.GetFromJsonAsync<BookViewModel>($"api/books/{BookId}");
         Customer = await http.GetFromJsonAsync<CustomerViewModel>($"api/customers/{CustomerId}");
 
+        Review.BookId = BookId;
+        Review.CustomerId = CustomerId;
+
         await base.OnInitializedAsync();
     }
 
-    protected async void HandleSubmit()
+    protected async Task HandleSubmit()
     {
-        var result = await http.PostAsJsonAsync<ReviewViewModel>("api/review", Review);
+        if (editContext.Validate())
+        {
+            var response = await http.PostAsJsonAsync("api/reviews", Review);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Error = errorMessage;
+            }
+        }
+        else
+        {
+            Error = "Please correct the form errors and try again.";
+        }
+        }
     }
-}
