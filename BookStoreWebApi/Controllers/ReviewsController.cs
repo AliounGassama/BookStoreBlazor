@@ -50,6 +50,27 @@ namespace BookStoreWebApi.Controllers
             return review;
         }
 
+        // GET: api/Reviews/ByBook/5
+        [HttpGet("ByBook/{bookId}")]
+        public async Task<ActionResult<IEnumerable<Review>>> GetReviewsByBook(int bookId)
+        {
+            if (_context.Reviews == null)
+            {
+                return NotFound();
+            }
+
+            var reviews = await _context.Reviews
+                .Where(reviews => reviews.BookId == bookId)
+                .ToListAsync();
+
+            if (reviews == null)
+            {
+                return NotFound();
+            }
+
+            return reviews;
+        }
+
         // PUT: api/Reviews/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
