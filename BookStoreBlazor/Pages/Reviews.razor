@@ -5,6 +5,72 @@
 <h3>Reviews</h3>
 <hr />
 
-@code {
+@if (load)
+{
+    <div class="container">
+        <label for="bookSelect">Select a Book:</label>
+        <select class="form-control" @onchange="OnBookSelectionChanged">
+            <option value="0">Select a Book</option>
+            @foreach (var book in Books)
+            {
+                <option value="@book.BookId">@book.Title</option>
+            }
+        </select>
+    </div>
+}
 
+@if (ReviewsList != null && ReviewsList.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var review in ReviewsList)
+            {
+                <tr>
+                    <td>@review.ReviewTitle</td>
+                    <td>@review.ReviewDescription</td>
+                    <td>@review.ReviewRating</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No reviews available for this book.</p>
+}
+
+
+@code {
+    private List<ReviewViewModel> ReviewsList { get; set; }
+    private List<BookViewModel> Books { get; set; }
+    private int selectedBookId;
+    private Boolean load = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Books = await http.GetFromJsonAsync<List<BookViewModel>>("api/books");
+        load = true;
+    }
+
+    private async Task OnBookSelectionChanged(ChangeEventArgs args)
+    {
+        selectedBookId = int.Parse(args.Value.ToString());
+
+        if (selectedBookId != 0)
+        {
+            ReviewsList = await http.GetFromJsonAsync<List<ReviewViewModel>>($"api/Reviews/ByBook/{selectedBookId}");
+        }
+        else
+        {
+            ReviewsList = null;
+        }
+    }
 }
